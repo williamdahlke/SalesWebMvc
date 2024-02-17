@@ -27,7 +27,10 @@ namespace SalesWebMvc.Controllers
         public async Task<IActionResult> Create() 
         { 
             var departments = await _departmentService.FindAllAsync();
-            var viewModel = new SellerFormViewModel() { Departments = departments};
+
+            Department defaultDepartment = departments.FirstOrDefault();
+            var seller = new Seller() { Department = defaultDepartment, DepartmentId = defaultDepartment.Id };
+            var viewModel = new SellerFormViewModel() { Departments = departments, Seller = seller};
 
             return View(viewModel);
         }
@@ -93,6 +96,7 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Seller seller)
         {
+            seller.Department = _departmentService.FindAllAsync().Result.FirstOrDefault(x => x.Id == seller.DepartmentId);
             if (!ModelState.IsValid)
             {
                 var departments = await _departmentService.FindAllAsync();
@@ -116,6 +120,8 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit (int id, Seller seller)
         {
+            seller.Department = _departmentService.FindAllAsync().Result.FirstOrDefault(x => x.Id == seller.DepartmentId);
+
             if (!ModelState.IsValid)
             {
                 var departments = await _departmentService.FindAllAsync();
